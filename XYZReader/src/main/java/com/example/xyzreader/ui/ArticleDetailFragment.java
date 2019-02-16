@@ -51,6 +51,7 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
+    private static final String IS_APP_BAR_EXPANDED = "is_app_bar_expanded";
 
     private long mItemId;
     private String mTitle;
@@ -67,6 +68,8 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
     private View mMetaBar;
     private TextView mBylineView;
     private TextView mBodyView;
+
+    private boolean mIsAppBarExpanded;
 
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
@@ -111,10 +114,19 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mAppBarLayout = mRootView.findViewById(R.id.appbar);
+
+        boolean savedAppBarExpanded = true;
+        if (savedInstanceState != null) {
+            savedAppBarExpanded = savedInstanceState.getBoolean(IS_APP_BAR_EXPANDED);
+        }
+
+        mIsAppBarExpanded = getResources().getBoolean(R.bool.is_app_bar_expanded) && savedAppBarExpanded;
+        mAppBarLayout.setExpanded(mIsAppBarExpanded);
+
         mCollapsingToolbar = mRootView.findViewById(R.id.collapsing_toolbar);
 
         mToolbar = mRootView.findViewById(R.id.anim_toolbar);
@@ -153,11 +165,13 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 //  Vertical offset == 0 indicates appBar is fully expanded.
                 if (Math.abs(verticalOffset) > 600) {
+                    mIsAppBarExpanded = false;
                     mToolbar.getMenu().getItem(0).setVisible(true);
                     if (getActivity() != null) {
                         getActivity().invalidateOptionsMenu();
                     }
                 } else {
+                    mIsAppBarExpanded = true;
                     mToolbar.getMenu().getItem(0).setVisible(false);
                     if (getActivity() != null) {
                         getActivity().invalidateOptionsMenu();
@@ -174,6 +188,12 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
         });
 
         return mRootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(IS_APP_BAR_EXPANDED, mIsAppBarExpanded);
+        super.onSaveInstanceState(outState);
     }
 
     private void populateUI() {
