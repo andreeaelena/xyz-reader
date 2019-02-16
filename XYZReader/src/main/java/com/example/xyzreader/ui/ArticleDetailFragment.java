@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -19,15 +20,21 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.volley.VolleyError;
@@ -55,12 +62,11 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
     private View mRootView;
     private CollapsingToolbarLayout mCollapsingToolbar;
     private AppBarLayout mAppBarLayout;
-    private NestedScrollView mScrollView;
+    private Toolbar mToolbar;
     private ImageView mPhotoView;
+    private View mMetaBar;
     private TextView mBylineView;
     private TextView mBodyView;
-
-    private boolean mIsAppBarExpanded = true;
 
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
@@ -90,10 +96,6 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
         if (arguments != null) {
             mItemId = arguments.getLong(ARG_ITEM_ID);
         }
-
-//        mIsCard = getResources().getBoolean(R.bool.detail_is_card);
-//        mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
-//                R.dimen.detail_card_top_margin);
         setHasOptionsMenu(true);
     }
 
@@ -111,33 +113,55 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_article, container, false);
+        mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mAppBarLayout = mRootView.findViewById(R.id.appbar);
         mCollapsingToolbar = mRootView.findViewById(R.id.collapsing_toolbar);
-        mScrollView = mRootView.findViewById(R.id.scrollview);
 
-        final Toolbar toolbar = mRootView.findViewById(R.id.anim_toolbar);
-        AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        appCompatActivity.setSupportActionBar(toolbar);
-        if (appCompatActivity.getSupportActionBar() != null) {
-            appCompatActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        mToolbar = mRootView.findViewById(R.id.anim_toolbar);
+        mToolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().onBackPressed();
+                }
+            }
+        });
+        mToolbar.inflateMenu(R.menu.menu_detail);
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.share:
+                        startShareActivity();
+                        return true;
+                }
+                return false;
+            }
+        });
 
         mPhotoView = mRootView.findViewById(R.id.photo);
+        mMetaBar = mRootView.findViewById(R.id.meta_bar);
         mBylineView = mRootView.findViewById(R.id.article_byline);
         mBylineView.setMovementMethod(new LinkMovementMethod());
         mBodyView = mRootView.findViewById(R.id.article_body);
+
+        mMetaBar.setAlpha(0f);
 
         mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 //  Vertical offset == 0 indicates appBar is fully expanded.
-                if (Math.abs(verticalOffset) > 200) {
-                    mIsAppBarExpanded = false;
-                    getActivity().invalidateOptionsMenu();
+                if (Math.abs(verticalOffset) > 600) {
+                    mToolbar.getMenu().getItem(0).setVisible(true);
+                    if (getActivity() != null) {
+                        getActivity().invalidateOptionsMenu();
+                    }
                 } else {
-                    mIsAppBarExpanded = true;
-                    getActivity().invalidateOptionsMenu();
+                    mToolbar.getMenu().getItem(0).setVisible(false);
+                    if (getActivity() != null) {
+                        getActivity().invalidateOptionsMenu();
+                    }
                 }
             }
         });
@@ -145,10 +169,7 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
         mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
-                        .setType("text/plain")
-                        .setText("Some sample text")
-                        .getIntent(), getString(R.string.action_share)));
+                startShareActivity();
             }
         });
 
@@ -187,16 +208,30 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
                         public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
+                                mPhotoView.setImageBitmap(bitmap);
+
+                                Palette palette = Palette.generate(bitmap, 12);
+                                int imageDarkMutedColor = palette.getDarkMutedColor(0xFF333333);
+                                mMetaBar.setBackgroundColor(imageDarkMutedColor);
+
+                                // Animate in the meta bar:
+                                mMetaBar.animate().alpha(1f).setDuration(300);
                             }
                         }
 
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            // TODO
+                            // Do nothing
                         }
                     });
         }
+    }
+
+    private void startShareActivity() {
+        startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
+                .setType("text/plain")
+                .setText("Some sample text")
+                .getIntent(), getString(R.string.action_share)));
     }
 
     private static Date parsePublishedDate(String date) {
@@ -220,7 +255,7 @@ public class ArticleDetailFragment extends Fragment implements LoaderManager.Loa
     }
 
     @Override
-    public void onLoadFinished(@NonNull android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(@NonNull android.support.v4.content.Loader<Cursor> loader, final Cursor cursor) {
         if (!isAdded() && cursor != null) {
             cursor.close();
             return;
