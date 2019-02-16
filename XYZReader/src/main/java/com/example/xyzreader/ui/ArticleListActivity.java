@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 
 import java.text.ParseException;
@@ -37,6 +36,8 @@ import java.util.GregorianCalendar;
  * activity presents a grid of items as cards.
  */
 public class ArticleListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+    public static final String ARTICLE_POSITION_EXTRA = "article_position";
+    public static final String ARTICLE_ID_EXTRA = "article_id";
     private static final String TAG = ArticleListActivity.class.toString();
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -149,8 +150,10 @@ public class ArticleListActivity extends AppCompatActivity implements LoaderMana
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+                    Intent articleDetailActivity = new Intent(ArticleListActivity.this, ArticleDetailActivity.class);
+                    articleDetailActivity.putExtra(ARTICLE_POSITION_EXTRA, vh.getAdapterPosition());
+                    articleDetailActivity.putExtra(ARTICLE_ID_EXTRA, getItemId(vh.getAdapterPosition()));
+                    startActivity(articleDetailActivity);
                 }
             });
             return vh;

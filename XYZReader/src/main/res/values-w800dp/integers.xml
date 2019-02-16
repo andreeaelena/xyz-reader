@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <bool name="is_app_bar_expanded">false</bool>
+    <integer name="list_column_count">3</integer>
 
 </resources>

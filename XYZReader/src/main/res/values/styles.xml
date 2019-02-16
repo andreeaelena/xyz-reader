@@ -17,14 +17,61 @@
 
 <resources>
 
-    <style name="Theme.Bacon" parent="@style/Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.Main.NoActionBar" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryDark">@color/primaryDarkColor</item>
         <item name="colorAccent">@color/secondaryColor</item>
     </style>
 
-    <style name="Theme.Bacon.Detail">
-        <item name="android:statusBarColor">@android:color/transparent</item>
+    <style name="Theme.Main.DarkActionBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/secondaryColor</item>
+    </style>
+
+    <style name="articleItemTitleStyle">
+        <item name="android:paddingStart">@dimen/article_item_title_padding_left</item>
+        <item name="android:paddingTop">@dimen/article_item_title_padding_top</item>
+        <item name="android:paddingEnd">@dimen/article_item_title_padding_right</item>
+        <item name="android:paddingBottom">@dimen/article_item_title_padding_bottom</item>
+        <item name="android:textSize">@dimen/article_item_title_text_size</item>
+        <item name="android:textColor">@color/secondaryTextColor</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:minLines">2</item>
+        <item name="android:maxLines">2</item>
+    </style>
+
+    <style name="articleItemSubtitleStyle">
+        <item name="android:paddingStart">@dimen/article_item_subtitle_padding_left</item>
+        <item name="android:paddingEnd">@dimen/article_item_subtitle_padding_right</item>
+        <item name="android:paddingBottom">@dimen/article_item_subtitle_padding_bottom</item>
+        <item name="android:textSize">@dimen/article_item_subtitle_text_size</item>
+        <item name="android:textColor">@color/gray_500</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="detailScrollViewStyle">
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="articleBylineStyle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white_50_opacity</item>
+    </style>
+
+    <style name="articleBodyStyle">
+        <item name="android:textColor">@color/secondaryTextColor</item>
+        <item name="android:textColorLink">@color/secondaryColor</item>
+        <item name="android:textSize">@dimen/detail_body_text_size</item>
+        <item name="android:lineSpacingMultiplier">@fraction/detail_body_line_spacing_multiplier</item>
+    </style>
+
+    <style name="articleBodyCardStyle">
+        <item name="android:layout_marginLeft">@dimen/detail_body_margin_horizontal</item>
+        <item name="android:layout_marginRight">@dimen/detail_body_margin_horizontal</item>
+        <item name="android:layout_marginTop">@dimen/detail_body_margin_vertical</item>
+        <item name="android:layout_marginBottom">@dimen/detail_body_margin_vertical</item>
     </style>
 
 </resources>

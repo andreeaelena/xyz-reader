@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="detail_body_margin_vertical">0dp</dimen>
+    <dimen name="detail_body_margin_horizontal">0dp</dimen>
+
+</resources>
